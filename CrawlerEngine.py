@@ -93,3 +93,4 @@ if __name__ == '__main__':
 	root = "https://www.ft.com/content/77d5a928-0a5b-11e8-bacb-2958fde95e5e"
 	c = Crawler(root)
 	bsObj = c.get_bs_obj()
+	print(bsObj.get_text())
