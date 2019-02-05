@@ -1,7 +1,5 @@
 import CreateTable as db
 
-
-
 '''
 with db.session_scope() as session:
 	task_row = URLTask( url_id=1, 
@@ -21,10 +19,6 @@ with db.session_scope() as session:
 
 '''
 
-
-
-with session_scope() as session:
-	row = session.query(URLTask).filter( URLTask.url_id == 1 ).first()
-	print('Retrieving: ', row.url_id, row.url)
-
-	
+with db.session_scope() as session:
+    row = session.query(db.URLTask).filter(db.URLTask.url_id == 1).first()
+    print('Retrieving: ', row.url_id, row.url)

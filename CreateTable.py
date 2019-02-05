@@ -1,6 +1,8 @@
 
 
 import pymysql
+
+
 pymysql.install_as_MySQLdb()
 from sqlalchemy import Column, ForeignKey, Integer, String, SmallInteger, Text
 from sqlalchemy.ext.declarative import declarative_base
@@ -15,6 +17,10 @@ from contextlib import contextmanager
 
 @contextmanager
 def session_scope():
+
+	Session = sessionmaker()
+	Session.configure(bind=engine)
+
 	"""Provide a transactional scope around a series of operations."""
 	session = Session(expire_on_commit=False)
 	try:
@@ -85,7 +91,7 @@ db_uri = 'mysql+pymysql://root:Ace1997!@localhost:3306/Crawler'
 engine = create_engine(db_uri)
 
 Base.metadata.create_all(engine, checkfirst=True)
-
+print("Tables in database:")
 for _t in Base.metadata.tables:
 	print(_t)
 

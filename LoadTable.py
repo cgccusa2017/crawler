@@ -1,10 +1,7 @@
 
 from sqlalchemy import create_engine
 from sqlalchemy import MetaData
-from sqlalchemy import Table
-
-
-from sqlalchemy.exc import SQLAlchemyError
+import CreateTable as db
 from sqlalchemy.orm import sessionmaker
 
 '''
@@ -26,35 +23,41 @@ class URLText(Base):
 '''
 
 
+
+
 db_uri = 'mysql+pymysql://root:Ace1997!@localhost:3306/Crawler'
 engine = create_engine(db_uri)
-metadata = MetaData()
-metadata.reflect(bind=engine)
-print(metadata.tables)
+# metadata = MetaData()
+# metadata.reflect(bind=engine)
+#print(metadata.tables)
 
 
 Session = sessionmaker()
 Session.configure(bind=engine)
-session=Session()
 
-try:
-	row = URLTask( url_id=0, 
-		           url='www.google.com', 
-		           timestamp=0,
-		           duration=1,
-		           status=2,
-		           priority=1 )
-	session.add(row)
-	session.commit()
+with db.session_scope() as session:
+    row = session.query(db.URLTask).filter(db.URLTask.url_id == 1).first()
+    print('Retrieving: ', row.url_id, row.url)
 
-	row = session.query(URLTask).filter( URLTask.url_id == 0 ).first()
-	print('original: ', row.url_id, row.url)
 
-except SQLAlchemyError as e:
-	print(e)
-
-finally:
-	session.close()
+# try:
+# 	row = db.URLTask( url_id=0,
+# 		           url='www.google.com',
+# 		           timestamp=0,
+# 		           duration=1,
+# 		           status=2,
+# 		           priority=1 )
+# 	session.add(row)
+# 	session.commit()
+#
+# 	row = session.query(db.URLTask).filter( db.URLTask.url_id == 0 ).first()
+# 	print('original: ', row.url_id, row.url)
+#
+# except SQLAlchemyError as e:
+# 	print(e)
+#
+# finally:
+# 	session.close()
 
 
 
