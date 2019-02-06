@@ -1,5 +1,4 @@
 
-
 import pymysql
 
 
@@ -34,9 +33,14 @@ def session_scope():
 
 
 Base = declarative_base()
+db_uri = 'mysql+pymysql://root:Ace1997!@localhost:3306/Crawler'
+engine = create_engine(db_uri)
+
+
 class URLTask(Base):
+
 	__tablename__ = 'URLTask'
-	url_id = Column(Integer, primary_key=True)
+	url_id = Column(Integer, primary_key=True, autoincrement=True)
 	url = Column(String(length=2038), nullable=False)
 	timestamp = Column(Integer)
 	duration = Column(Integer)
@@ -44,53 +48,50 @@ class URLTask(Base):
 	priority = Column(SmallInteger)
 
 	def __str__(self, ):
-		return self.url_id
+		return str(self.url_id)
 
-	def get_url():
+	def get_url(self):
 		return self.url
 
-	def get_timestamp():
+	def get_timestamp(self):
 		return self.timestamp
 	
-	def get_duration():
+	def get_duration(self):
 		return self.duration
 
-	def update_duration():
+	def update_duration(self):
 		pass
 	
-	def get_status():
+	def get_status(self):
 		return self.status
 	
-	def get_priority():
+	def get_priority(self):
 		return self.priority
 	
 	def __lt__(self, other):
 		return self.priority < other.priority
 
 
-
 class URLText(Base):
+
 	__tablename__ = 'URLText'
-	text_id = Column(Integer, primary_key=True)
+	text_id = Column(Integer, primary_key=True, autoincrement=True)
 	url_id = Column(Integer, ForeignKey('URLTask.url_id'), nullable=False)
 	timestamp = Column(Integer)
 	text = Column(Text, nullable=False)
 
 	def __str__(self, ):
-		return self.url_id
+		return str(self.url_id)
 
-	def get_timestamp():
+	def get_timestamp(self):
 		return self.timestamp
 
-	def get_text():
+	def get_text(self):
 		return self.text
 
 
+Base.metadata.create_all(bind=engine, checkfirst=True)
 
-db_uri = 'mysql+pymysql://root:Ace1997!@localhost:3306/Crawler'
-engine = create_engine(db_uri)
-
-Base.metadata.create_all(engine, checkfirst=True)
 print("Tables in database:")
 for _t in Base.metadata.tables:
 	print(_t)
@@ -121,5 +122,3 @@ for _t in Base.metadata.tables:
 # with session_scope() as session:
 # 	row = session.query(URLTask).filter( URLTask.url_id == 1 ).first()
 # 	print('Retrieving: ', row.url_id, row.url)
-
-
