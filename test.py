@@ -67,13 +67,31 @@ with db.session_scope() as session:
 """
 
 if __name__ == "__main__":
+
+	with db.session_scope() as session:
+		task_row = db.URLTask(
+			url_id=18,
+			url='www.github.com',
+			timestamp=0,
+			duration=1,
+			status=2,
+			priority=1
+		)
+		session.add(task_row)
+		session.commit()
+
+
+
+	"""
 	cm = CrawlerManager.CrawlerManager()
 	crawler = Crawler.Crawler()
 	tp = TextProcessor.TextProcessor()
 	origin_url = "http://www.google.com/"
 
 	invalid_url = "www"
-	code, url_content = crawler.crawl(invalid_url)
-	print(code)
-	print(url_content)
+	code, url_content = crawler.crawl(origin_url)
+
+	cm.start_crawl(crawler)
+	"""
+
 

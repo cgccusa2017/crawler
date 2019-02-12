@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup as Soup
 import re
 from urllib.parse import urlparse
 
+
 class TextProcessor:
 
     def __init__(self):
@@ -11,7 +12,6 @@ class TextProcessor:
     def separate_url_text(self, origin_url, url_content, keyword=None):
         links = set()
         text = Soup(url_content, 'html.parser')
-
 
         for a in text.find_all('a'):
 
@@ -24,7 +24,6 @@ class TextProcessor:
             del a['href']
 
         return links, text
-
 
     def add_domain(self, origin_url, broken_url):
         """
@@ -42,7 +41,6 @@ class TextProcessor:
         else:
             return origin_url + broken_url[1:]
 
-
     def is_valid_url(self, origin_url, url):
         """
         This function will check if a url is valid or not.
@@ -55,10 +53,9 @@ class TextProcessor:
             r'^https?://'  # http:// or https://
             r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
             r'localhost|'  # localhost...
-            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+            r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
             r'(?::\d+)?'  # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
-
 
         if (url is not None) and (regex.search(url) is not None):
             return url
@@ -67,11 +64,9 @@ class TextProcessor:
             new_url = self.add_domain(origin_url, url)
 
             if (new_url is not None) and (regex.search(new_url) is not None):
-               return new_url
+                return new_url
 
         return None
-
-
 
     # TODO: handle keywords here, calculate the relevance of a url's content(given the keyword)
     def check_relevance(self, url_content, keyword):

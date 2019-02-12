@@ -31,3 +31,7 @@ class CrawlerSettings:
 	@staticmethod
 	def get_post_form():
 		return {}
+
+	@staticmethod
+	def get_redirect_code():
+		return {301, 302, 307}

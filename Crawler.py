@@ -1,4 +1,4 @@
-# from bs4 import BeautifulSoup as Soup
+
 import requests
 import LoginModule
 from Settings import CrawlerSettings
@@ -46,11 +46,11 @@ class Crawler:
 
 		# if empty url string
 		if not target_url:
-			return -1, None
+			return target_url, -1, None
 
 		# check if the original url is valid
 		if self.tp.is_valid_url("", target_url) is None:
-			return -1, None
+			return target_url, -1, None
 
 		# add function to get cookies (LoginModule, github_login), and set session cookies
 		if crawler_settings and crawler_setter:
@@ -68,17 +68,24 @@ class Crawler:
 		response = self.session.get(target_url, timeout=max_timeout)
 		status_code = response.status_code
 
-		if status_code == requests.codes.ok:
-			return status_code, response.text
+		if response.history and response.history[0].status_code in CrawlerSettings.get_redirect_code():
+			target_url = response.url
+			print(target_url)
 
-		return -1, None
+		if status_code == requests.codes.ok:
+			return target_url, status_code, response.text
+
+		return target_url, -1, None
 
 
 
 if __name__ == "__main__":
-	pass
-	#url = 'http://www.python.org/'
-	#print(Crawler().crawl(url))
+	url = 'http://www.github.com/'
+
+	url, code, content = Crawler().crawl(url)
+
+	print("==============main method==============")
+	print(url)
 
 	'''
 		Args:

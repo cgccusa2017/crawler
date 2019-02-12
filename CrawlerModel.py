@@ -40,8 +40,16 @@ class URLTask(Base):
     # Shall we store DateTime instead?
     timestamp = Column(Integer)
     duration = Column(Integer)
+    # millisecond, TODO: exponential backoff
+    # TODO: how to get next duration, and update status
+
     status = Column(SmallInteger)
+    # 1: available, 2: idle, 0: fail
+
     priority = Column(SmallInteger)
+    # TODO: text processor, or user defined ??
+
+    available = Column(Integer)
 
     def __str__(self, ):
         return str(self.url_id)
@@ -85,9 +93,9 @@ class URLText(Base):
         return self.text
 
 
-class User(Base):
+class UserList(Base):
     __tablename__ = 'UserList'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    uid = Column(Integer, primary_key=True, autoincrement=True)
 
     def __str__(self, ):
         return str(self.id)
@@ -97,7 +105,7 @@ class User(Base):
 class UserTask(Base):
     __tablename__ = 'UserTask'
     task_id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('User.id'))
+    user_id = Column(Integer, ForeignKey('UserList.uid'))
     url_id = Column(Integer, ForeignKey('URLTask.url_id'), nullable=False)
     timestamp = Column(Integer)
 
