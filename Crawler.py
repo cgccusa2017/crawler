@@ -2,6 +2,7 @@
 import requests
 import LoginModule
 from Settings import CrawlerSettings
+import TextProcessor
 
 
 
@@ -11,6 +12,8 @@ class Crawler:
 			self.session = requests.Session()
 		else:
 			self.session = session
+
+		self.tp = TextProcessor.TextProcessor()
 
 	def __del__(self):
 		self.session.close()
@@ -45,6 +48,10 @@ class Crawler:
 		if not target_url:
 			return -1, None
 
+		# check if the original url is valid
+		if self.tp.is_valid_url("", target_url) is None:
+			return -1, None
+
 		# add function to get cookies (LoginModule, github_login), and set session cookies
 		if crawler_settings and crawler_setter:
 			self.session = crawler_setter(self.session, crawler_settings)
@@ -64,19 +71,6 @@ class Crawler:
 		if status_code == requests.codes.ok:
 			return status_code, response.text
 
-		# # Retry url: keep requesting the url until exceed the time limit
-		# if code in ErrorCode.retry_code:
-		# 	time = 0
-		# 	while time < max_wait and code in ErrorCode.retry_code:
-		# 		sys.sleep(1)
-		# 		response = requests.get(url)
-		# 		code = response.status_code
-		# 		time += 1
-		#
-		# 		if time == max_wait:
-		# 			return None
-
-		# Otherwise, return None
 		return -1, None
 
 

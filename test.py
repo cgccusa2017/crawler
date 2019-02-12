@@ -1,4 +1,8 @@
-import CreateTable as db
+import CrawlerModel as db
+from sqlalchemy.exc import SQLAlchemyError
+import Crawler
+import CrawlerManager
+import TextProcessor
 
 '''
 with db.session_scope() as session:
@@ -18,7 +22,58 @@ with db.session_scope() as session:
 	session.commit()
 
 '''
-
+"""
+This piece of code retrieves a row successfully
 with db.session_scope() as session:
     row = session.query(db.URLTask).filter(db.URLTask.url_id == 1).first()
     print('Retrieving: ', row.url_id, row.url)
+"""
+
+"""
+with db.session_scope() as session:
+    try:
+        row = session.query(db.URLText).filter(db.URLText.url_id == 1).first()
+
+        if row is None:
+            row = db.URLText(url_id=1, timestamp=0, text="Insert a New Row")
+            session.add(row)
+
+        else:
+            row.text = "2nd time: Editing an Existing Row"
+
+        session.commit()
+        print("success")
+    except SQLAlchemyError as e:
+        print(e)
+        print("failure")
+        
+        
+        
+        
+        
+        
+    cm = CrawlerManager.CrawlerManager()
+    crawler = Crawler.Crawler()
+    tp = TextProcessor.TextProcessor()
+
+    origin_url = "http://www.google.com/"
+
+    # TODO: handle origin_url is NULL/invalid --> it should not break the program
+    code, url_content = crawler.crawl(origin_url)
+
+    links, text = cm.process_text(origin_url, url_content)
+    print(links)
+    print(len(links))
+"""
+
+if __name__ == "__main__":
+	cm = CrawlerManager.CrawlerManager()
+	crawler = Crawler.Crawler()
+	tp = TextProcessor.TextProcessor()
+	origin_url = "http://www.google.com/"
+
+	invalid_url = "www"
+	code, url_content = crawler.crawl(invalid_url)
+	print(code)
+	print(url_content)
+
