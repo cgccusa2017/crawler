@@ -49,7 +49,8 @@ class URLTask(Base):
     priority = Column(SmallInteger)
     # TODO: text processor, or user defined ??
 
-    available = Column(Integer)
+    available_time = Column(Integer)
+    # timestamp + duration
 
     def __str__(self, ):
         return str(self.url_id)
