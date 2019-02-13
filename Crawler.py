@@ -87,38 +87,3 @@ if __name__ == "__main__":
 	print("==============main method==============")
 	print(url)
 
-	'''
-		Args:
-			- url_content: the content in a single url
-	
-		Return:
-			- links: set of url links found in url_content
-			- text: strings of all text (not include links)
-	
-		def crawl(self, url_content):
-	
-			
-			if not url_content:
-				return [], ""
-	
-			links = set()
-			text = ""
-	
-			text = Soup(url_content, 'html.parser')
-			for a in text.find_all('a'):
-				links.add(a['href'])
-				del a['href']
-	
-			#print(text)
-			#content = re.sub(r'^https?:\/\/.*[\r\n]*', '', url_content, flags=re.MULTILINE)
-			#for line in content:
-			#	text += ''.join(line.strip().split('\n'))
-	
-			return links, text
-	
-	# string="text1\ntext2\nhttp://url.com/bla1/blah1/\ntext3\ntext4\nhttp://url.com/bla2/blah2/\ntext5\ntext6"
-	
-	# print(Crawler().crawl(string))
-	
-	
-	'''

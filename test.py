@@ -64,20 +64,31 @@ with db.session_scope() as session:
     links, text = cm.process_text(origin_url, url_content)
     print(links)
     print(len(links))
+    
+    with db.session_scope() as session:
+		curr_time = time.time()
+		task_row = db.URLTask(
+			url_id=1,
+			url="http://www.github.com",
+			timestamp=curr_time,
+			duration=1,
+			status=2,
+			priority=1,
+			available_time=curr_time+1
+		)
+		session.add(task_row)
+		session.commit()
 """
-
+import time
 if __name__ == "__main__":
 
 	with db.session_scope() as session:
-		task_row = db.URLTask(
-			url_id=18,
-			url='www.github.com',
-			timestamp=0,
-			duration=1,
-			status=2,
-			priority=1
-		)
-		session.add(task_row)
+		row = session.query(db.URLTask).filter(db.URLTask.url_id == 5).first()
+
+		row.priority = 100
+
+		row = session.query(db.URLTask).filter(db.URLTask.url_id == 8).first()
+		row.priority = 10
 		session.commit()
 
 

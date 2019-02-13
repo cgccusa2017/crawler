@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from contextlib import contextmanager
-
+import time
 
 @contextmanager
 def session_scope():
@@ -40,20 +40,24 @@ class URLTask(Base):
     # Shall we store DateTime instead?
     timestamp = Column(Integer)
     duration = Column(Integer)
-    # millisecond, TODO: exponential backoff
-    # TODO: how to get next duration, and update status
+    # unit: millisecond
+    # TODO: exponential back-off
 
+    # TODO: how to get next duration, and update status
     status = Column(SmallInteger)
     # 1: available, 2: idle, 0: fail
 
     priority = Column(SmallInteger)
-    # TODO: text processor, or user defined ??
+    # TODO: use text processor to calculate, or based on user-defined value
 
     available_time = Column(Integer)
     # timestamp + duration
 
     def __str__(self, ):
         return str(self.url_id)
+
+    def get_id(self):
+        return self.url_id
 
     def get_url(self):
         return self.url
@@ -72,6 +76,15 @@ class URLTask(Base):
 
     def get_priority(self):
         return self.priority
+
+    def get_available_time(self):
+        return self.available_time
+
+    def set_timestamp(self, time):
+        self.timestamp = time
+
+    def set_available_time(self, time):
+        self.available_time = time + self.duration
 
     def __lt__(self, other):
         return self.priority < other.priority
@@ -94,15 +107,17 @@ class URLText(Base):
         return self.text
 
 
+# This table store the users' name
 class UserList(Base):
     __tablename__ = 'UserList'
     uid = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(length=2038), nullable=False)
 
     def __str__(self, ):
         return str(self.id)
 
 
-# Build an USER table that contains user ID and task ID
+# This table contains user ID and their url task id.
 class UserTask(Base):
     __tablename__ = 'UserTask'
     task_id = Column(Integer, primary_key=True, autoincrement=True)
@@ -115,6 +130,14 @@ class UserTask(Base):
 
     def get_task(self):
         return self.url_id
+
+
+# This table stores the quota of the websites we can crawl from certain domain
+class DomainQuota(Base):
+    __tablename__ = 'DomainQuota'
+    domain_id = Column(Integer, primary_key=True, autoincrement=True)
+    domain_name = Column(String(length=2038), nullable=False)
+    quota = Column(Integer, default=1000)
 
 
 
