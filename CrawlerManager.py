@@ -1,7 +1,5 @@
-import sys
-from sqlalchemy.exc import SQLAlchemyError
 
-import ErrorCode as ErrorCode
+from sqlalchemy.exc import SQLAlchemyError
 import requests
 
 from urllib.parse import urlparse
@@ -11,15 +9,21 @@ import TextProcessor
 import CrawlerModel as db
 import Crawler
 import time
+import TaskQueue
 
 class CrawlerManager:
-    def __init__(self, state=1):
+    def __init__(self, state=1, task_queue=None):
         """
         :param state: 1 active, 0 inactive, 2 wait, 3 error
         """
         self.state = state
         self.session = Session()
         self.tp = TextProcessor.TextProcessor()
+
+        if not task_queue:
+            self.task_queue = TaskQueue.TaskQueue()
+        else:
+            self.task_queue = task_queue
 
     def __del__(self):
         self.session.close()
@@ -54,6 +58,7 @@ class CrawlerManager:
                         # update the next available time and timestamp
                         url.set_timestamp(curr_time)
                         url.set_available_time(curr_time)
+                        print("In get_url() method - return url: {}".format(url.get_url()))
                         return url.get_url(), url.get_id()
 
                 else:
@@ -78,30 +83,52 @@ class CrawlerManager:
         return links, text
 
 
-    def start_crawl(self, crawler, crawler_settings=None):
+    def start_crawl(self, crawler, url, url_id, crawler_settings=None):
         """
         This function starts a crawler
         :param crawler:
+        :param origin_url: the seed url
+        :param url_id: the seed url's id
         :param crawler_settings: a dictionary contains header {}, form_data {}
         :return: nothing to return, update the url_task and url_text table
         """
 
-        # get the next url to crawl, store the url_id for later updating urlText table
-        origin_url, url_id = self.get_url()
+        # # get the next url to crawl, store the url_id for later updating urlText table
+        # origin_url, url_id = self.get_url()
+        #
+        # if not origin_url or url_id == -1:
+        #     time.sleep(1)
+        #     origin_url, url_id = self.get_url()
 
-        if not origin_url or url_id == -1:
-            time.sleep(1)
-            origin_url, url_id = self.get_url()
+        self.task_queue.async(crawler, parameters=(url, url_id, crawler_settings))
+        #origin_url, code, url_content = crawler.crawl(origin_url, crawler_settings)
 
-        origin_url, code, url_content = crawler.crawl(origin_url, crawler_settings)
 
+
+    # TODO: find task_queue, see which task finished; get the finished task and update table
+    def collect_result(self):
+
+        url_lst, code_lst, content_lst = self.task_queue.collect()
+
+        for (url, code, content) in zip(url_lst, code_lst, content_lst):
+            self.__collect_result(url, code, content)
+
+
+    def __collect_result(self, url, code, url_content):
+        """
+        This function update the url_task and url_text table
+        :param self:
+        :param url:
+        :param code:
+        :param url_content:
+        :return:
+        """
         # if able to open the url, get links and texts from it
         if code == requests.codes.ok:
             # get text and put into urlText
             # get links
 
-            url_lists, text = self.process_text(origin_url, url_content)
-
+            url_lists, text = self.process_text(url, url_content)
             if text:
                 # store text from url into table
                 state = self.update_url_text_table(url_id, text)
@@ -109,20 +136,22 @@ class CrawlerManager:
                 # if updating not success
                 if state == -1:
                     print("Error: cannot update the URL_TEXT table")
-                    sys.exit()
-
+                    return
 
             if url_lists:
-                state = self.update_url_task_table(origin_url, url_lists)
+                state = self.update_url_task_table(url, url_lists)
 
                 # if updating not success
                 if state == -1:
                     print("Error: cannot update the URL_TASK table")
-                    sys.exit()
+                    return
+                
+        else:
+            return
 
-        elif code in ErrorCode.retry_code:
-            # should retry crawling this url later
-            pass
+        print("Update Successfully")
+        return
+
 
 
     def update_url_text_table(self, url_id, text):
@@ -225,15 +254,31 @@ class CrawlerManager:
 
 
 if __name__ == "__main__":
+
     cm = CrawlerManager()
     crawler = Crawler.Crawler()
-
-    result = cm.get_url()
-    print(result)
-
-    cm.start_crawl(crawler)
+    url, url_id = cm.get_url()
+    print(url, "\t", url_id)
 
 
-    #origin_url = "http://www.google.com/"
-    #new_url = "http://www.google.com/intl/en/ads/"
-    #print(cm.check_domain(origin_url, new_url))
+    #url, code, url_content = crawler.crawl(url)
+
+
+    """
+    #  cm.start_crawl(crawler, origin_url, url_id)
+    distributed_Queue(cm.start_crawl(crawler, origin_url, url_id))
+    distributed_Queue(cm.start_crawl(crawler, origin_url, url_id))
+
+    distributed_queue.dispatch(crawler1.crawl(url))
+    distributed_queue.dispatch(crawler2.crawl(url))
+    distributed_queue.dispatch(crawler3.crawl(url))
+    distributed_queue.dispatch(crawler4.crawl(url))
+    distributed_queue.dispatch(crawler5.crawl(url))
+    distributed_queue.dispatch(crawler.crawl(url))
+    distributed_queue.dispatch(crawler.crawl(url))
+    distributed_queue.dispatch(crawler.crawl(url))
+
+    for res in results:
+        cm.update(res)
+    """
+

@@ -4,8 +4,6 @@ import LoginModule
 from Settings import CrawlerSettings
 import TextProcessor
 
-
-
 class Crawler:
 	def __init__(self, session=None):
 		if not session:
@@ -30,7 +28,6 @@ class Crawler:
 			crawler_setter=None,
 			need_login=None,
 			max_timeout=60):
-
 		"""
 		This function opens an url (request), return the code and text if no error encountered.
 		:param self
@@ -39,10 +36,10 @@ class Crawler:
 		:param crawler_setter
 		:param need_login
 		:param max_timeout
+		:return target_url: update the url if redirect happened, otherwise original url
 		:return code: indicate success or fail when try to open the url
 		:return text: all text inside the url
 		"""
-
 
 		# if empty url string
 		if not target_url:
