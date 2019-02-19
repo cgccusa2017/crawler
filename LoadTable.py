@@ -1,6 +1,6 @@
 # from sqlalchemy import create_engine
 # from sqlalchemy import MetaData
-import CreateTable as db
+import CrawlerModel as db
 import __init__ as init
 # from sqlalchemy.orm import sessionmaker
 
