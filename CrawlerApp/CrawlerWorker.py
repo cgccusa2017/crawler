@@ -1,8 +1,8 @@
 
 import requests
-import LoginModule
-from Settings import CrawlerSettings
-import TextProcessor
+from CrawlerApp import LoginModule
+from CrawlerApp.Settings import CrawlerSettings
+from CrawlerApp import TextProcessor
 
 class Crawler:
 	def __init__(self, session=None):
@@ -46,7 +46,8 @@ class Crawler:
 			return target_url, -1, None
 
 		# check if the original url is valid
-		if self.tp.is_valid_url("", target_url) is None:
+		target_url = self.tp.is_valid_url("", target_url)
+		if target_url is None:
 			return target_url, -1, None
 
 		# add function to get cookies (LoginModule, github_login), and set session cookies
@@ -67,7 +68,7 @@ class Crawler:
 
 		if response.history and response.history[0].status_code in CrawlerSettings.get_redirect_code():
 			target_url = response.url
-			print(target_url)
+			#print(target_url)
 
 		if status_code == requests.codes.ok:
 			return target_url, status_code, response.text

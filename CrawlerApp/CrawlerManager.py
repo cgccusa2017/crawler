@@ -2,17 +2,21 @@
 from sqlalchemy.exc import SQLAlchemyError
 import requests
 
-from urllib.parse import urlparse
-from __init__ import Session
-
-import TextProcessor
-import CrawlerModel as db
-import Crawler
 import time
-import TaskQueue
+
+from urllib.parse import urlparse
+from CrawlerApp.__init__ import Session
+
+from CrawlerApp import TextProcessor
+import CrawlerApp.CrawlerModel as db
+import CrawlerApp.CrawlerWorker as Crawler
+from CrawlerApp import TaskQueue
+
 from pybloom import ScalableBloomFilter
 
+
 class CrawlerManager:
+
     def __init__(self, state=1, task_queue=None):
         """
         :param state: 1 active, 0 inactive, 2 wait, 3 error
@@ -31,8 +35,12 @@ class CrawlerManager:
         self.session.close()
 
 
-    # Init bloom filter based on user id
     def init_bloom_filter(self, userID=None):
+        """
+        This function builds a bloom filter of urls based user id's.
+        :param userID: if None, put all url task into bloom filter.
+        :return: bloom filter object
+        """
 
         sbf = ScalableBloomFilter(mode=ScalableBloomFilter.SMALL_SET_GROWTH)
         urls = []
@@ -50,8 +58,6 @@ class CrawlerManager:
             sbf.add(urls[i][0])
 
         return sbf
-
-
 
 
     def get_url(self):
@@ -83,7 +89,7 @@ class CrawlerManager:
                         # update the next available time and timestamp
                         url.set_timestamp(curr_time)
                         url.set_available_time(curr_time)
-                        print("In get_url() method - return url: {}".format(url.get_url()))
+
                         return url.get_url(), url.get_id()
 
                 else:
@@ -136,10 +142,10 @@ class CrawlerManager:
         url_lst, code_lst, content_lst = self.task_queue.collect()
 
         for (url, code, content) in zip(url_lst, code_lst, content_lst):
-            self.__collect_result(url, code, content)
+            self._collect_result(url, code, content)
 
 
-    def __collect_result(self, url, code, url_content):
+    def _collect_result(self, url, code, url_content):
         """
         This function update the url_task and url_text table
         :param self:
@@ -161,7 +167,7 @@ class CrawlerManager:
                 # if updating not success
                 if state == -1:
                     print("Error: cannot update the URL_TEXT table")
-                    return
+                    return -1
 
             if url_lists:
                 state = self.update_url_task_table(url, url_lists)
@@ -169,13 +175,15 @@ class CrawlerManager:
                 # if updating not success
                 if state == -1:
                     print("Error: cannot update the URL_TASK table")
-                    return
+                    return -1
                 
         else:
-            return
+            print("Error: cannot open current url")
+            return -1
+
 
         print("Update Successfully")
-        return
+        return 0
 
 
 
@@ -219,48 +227,6 @@ class CrawlerManager:
         return 0
 
 
-    # def update_url_task_table(self, origin_url, url_lists):
-    #     """
-    #     This function enqueue newly found urls into task table
-    #     :param origin_url: the original url, for domain checking
-    #     :param url_lists: list of urls
-    #     :param quota: the maximum number of website to put into table
-    #     :return:
-    #     """
-    #     duration = 1
-    #     cnt = 0
-    #     with db.session_scope() as session:
-    #
-    #         while url_lists:
-    #             try:
-    #                 curr = url_lists.pop()
-    #
-    #                 if self.check_domain(origin_url, curr):
-    #
-    #                     row = session.query(db.URLTask).\
-    #                         filter(db.URLTask.url == curr).first()
-    #
-    #                     if row is None:
-    #                         curr_time = time.time()
-    #                         row = db.URLTask(
-    #                             url=curr,
-    #                             timestamp=curr_time,
-    #                             duration=duration,
-    #                             available_time=curr_time+duration
-    #                         )
-    #                         session.add(row)
-    #                         cnt += 1
-    #
-    #                 session.commit()
-    #
-    #             except SQLAlchemyError as e:
-    #                 print(e)
-    #                 return -1
-    #         print("Success: Updating url task table with {} entries".format(cnt))
-    #         return 0
-    #     return 0
-
-
     def update_url_task_table(self, origin_url, url_lists):
         """
         This function enqueue newly found urls into task table
@@ -275,7 +241,7 @@ class CrawlerManager:
             while url_lists:
                 try:
                     curr_url = url_lists.pop()
-                    if self.check_domain(origin_url, curr):
+                    if self.check_domain(origin_url, curr_url):
                         # add the url to scalable bloom filter
                         if curr_url not in self.sbf:
                             curr_time = time.time()
@@ -305,8 +271,12 @@ class CrawlerManager:
         :return: True if same domain, False otherwise.
         """
         origin_obj = urlparse(origin_url)
-        new_obj = urlparse(new_url)
 
+        new_obj = urlparse(new_url)
+        # print(origin_obj)
+        # print(new_obj)
+        # print(origin_obj.netloc)
+        # print(new_obj.netloc)
         return origin_obj.netloc == new_obj.netloc
 
 

@@ -66,6 +66,16 @@ class TextProcessor:
             if (new_url is not None) and (regex.search(new_url) is not None):
                 return new_url
 
+        if new_url == "":
+            new_url = "http://" + url
+            if (new_url is not None) and (regex.search(new_url) is not None):
+                return new_url
+
+            new_url = "https://" + url
+
+            if (new_url is not None) and (regex.search(new_url) is not None):
+                return new_url
+
         return None
 
     # TODO: handle keywords here, calculate the relevance of a url's content(given the keyword)
