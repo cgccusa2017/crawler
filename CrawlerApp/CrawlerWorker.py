@@ -79,9 +79,7 @@ class Crawler:
 
 if __name__ == "__main__":
 	url = 'http://www.github.com/'
-
 	url, code, content = Crawler().crawl(url)
-
 	print("==============main method==============")
 	print(url)
 

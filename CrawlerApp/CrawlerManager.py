@@ -160,7 +160,11 @@ class CrawlerManager:
             # get links
 
             url_lists, text = self.process_text(url, url_content)
+
             if text:
+                url_id = self.get_url_id(url)
+                if url_id == -1:
+                    return -1
                 # store text from url into table
                 state = self.update_url_text_table(url_id, text)
 
@@ -182,10 +186,22 @@ class CrawlerManager:
             return -1
 
 
-        print("Update Successfully")
+        #print("Update Successfully")
         return 0
 
 
+    def get_url_id(self, url):
+        with db.session_scope() as session:
+            try:
+                curr_row = session.query(db.URLTask).filter(db.URLTask.url == url).first()
+                url_id = curr_row.get_id()
+            except SQLAlchemyError as e:
+                print(e)
+                return -1
+
+            if not url_id:
+                return -1
+            return url_id
 
     def update_url_text_table(self, url_id, text):
         """
@@ -218,7 +234,7 @@ class CrawlerManager:
                     row.text = text
 
                 session.commit()
-                print("Success: Updating url text table")
+                # print("Success: Updating url text table")
 
             except SQLAlchemyError as e:
                 print(e)
@@ -232,7 +248,6 @@ class CrawlerManager:
         This function enqueue newly found urls into task table
         :param origin_url: the original url, for domain checking
         :param url_lists: list of urls
-        :param quota: the maximum number of website to put into table
         :return:
         """
         duration = 1
@@ -251,15 +266,15 @@ class CrawlerManager:
                                 duration=duration,
                                 available_time=curr_time+duration
                             )
-                        session.add(row)
-                        cnt += 1
-                        self.sbf.add(curr_url)
 
+                            session.add(row)
+                            cnt += 1
+                            self.sbf.add(curr_url)
                     session.commit()
                 except SQLAlchemyError as e:
                     print(e)
                     return -1
-            print("Success: Updating url task table with {} entries".format(cnt))
+            #print("Success: Updating url task table with {} entries".format(cnt))
 
         return 0
 
