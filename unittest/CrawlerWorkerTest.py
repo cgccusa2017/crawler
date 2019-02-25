@@ -15,7 +15,7 @@ import unittest
 
 
 
-class CrawlerTest(unittest.TestCase):
+class CrawlerWorkerTest(unittest.TestCase):
 
     def __init__(self):
         self.crawler = CrawlerWorker.Crawler()
@@ -29,7 +29,7 @@ class CrawlerTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    ct = CrawlerTest()
+    ct = CrawlerWorkerTest()
     print("Testing CrawlerWorker...")
     assert len(ct.test_crawl("www.github.com")) == 3
     assert isinstance(ct.test_crawl("http://www.github.com")[0], str)
