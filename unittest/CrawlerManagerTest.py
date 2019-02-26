@@ -70,12 +70,28 @@ class CrawlerManagerTest(unittest.TestCase):
         return diff
 
 
+    def get_text(self, url):
+        """
+        This function prints all text content (except url link) from the crawler result.
+        :param origin_url: the url we want to get text from
+        :return:
+        """
+        url, code, url_content = self.worker.crawl(url)
+        _, text = self.manager.process_text(url, url_content)
+
+        print(text)
+
+
 if __name__ == "__main__":
     cmt = CrawlerManagerTest()
-    origin_url = "https://www.starbucks.com/"
+    origin_url = "https://www.python.org/"
+    origin_url = "https://tuebui.com/joining-data-sets-with-hadoop-streaming-mapreduce-and-python/"
 
+
+    cmt.get_text(origin_url)
+
+"""
     print("Testing CrawlerManager...")
-
     print("Testing Method: get_url()")
     assert len(cmt.test_get_url()) == 2
     assert isinstance(cmt.test_get_url()[0], str)
@@ -98,5 +114,6 @@ if __name__ == "__main__":
 
     print("Testing Method: test_check_update_text_table(self, origin_url)")
     assert cmt.test_check_update_text_table(origin_url) >= 0
-
     print("Passed All Test cases.")
+"""
+

@@ -15,6 +15,7 @@ from CrawlerApp import TaskQueue
 from pybloom import ScalableBloomFilter
 
 
+
 class CrawlerManager:
 
     def __init__(self, state=1, task_queue=None):
@@ -203,7 +204,7 @@ class CrawlerManager:
                 return -1
             return url_id
 
-    def update_url_text_table(self, url_id, text):
+    def update_url_text_table(self, url_id, text, filepath_generator):
         """
         This function store information into url text table.
 
@@ -212,6 +213,12 @@ class CrawlerManager:
         :return: 0 if successfully updating row in the table, -1 if failed
         """
         text = "Testing Mode"
+
+
+        filepath = filepath_generator(url_id)
+        # TODO: open specific file path and store text into the path
+        # TODO: store the file path into db
+
         # check whether the text is updated
         # if true
         # # update the url updating frequency
