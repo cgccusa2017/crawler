@@ -12,7 +12,9 @@ import unittest
 
 
 class CrawlerManagerTest(unittest.TestCase):
-
+    """
+    This is the unit test for Crawler Manager.
+    """
     def __init__(self):
         self.manager = CrawlerManager.CrawlerManager()
         self.worker = CrawlerWorker.Crawler()

@@ -4,35 +4,51 @@ from urllib.parse import urlparse
 
 
 class TextProcessor:
+    """
+    This class handles text processing.
+    """
 
     def __init__(self):
         # set relevance score = 0 by default
         self.threshold = 0
 
     def separate_url_text(self, origin_url, url_content, keyword=None):
-        links = set()
+        """
+        This function will separate url and text from the original url content.
+        :param origin_url: the original url that will be processed, to check if the new url links found inside is the same domain as the original url.
+        :param url_content: the content in the url.
+        """
+        # Initialize a set (handles uniqueness) to store all url links found in the origin_url. 
+        url_links = set()
         text = Soup(url_content, 'html.parser')
 
         for a in text.find_all('a'):
-
+            # check for url's relevance
             if keyword and self.check_relevance(url_content, keyword) < self.threshold:
                 continue
             else:
+                # Check if the url is a valid url.
                 curr_url = self.is_valid_url(origin_url, a['href'])
+
+                # If valid, add to the set.
                 if curr_url is not None:
-                    links.add(curr_url)
+                    url_links.add(curr_url)
+
+            # Delete the newly found url from the url content after processing. 
             del a['href']
 
-        return links, text
+        # Return the list of urls and the text found in the origin_url.
+        return url_links, text
+
 
     def add_domain(self, origin_url, broken_url):
         """
         This function add netloc to the broken url and return the new url
         :param origin_url:
-        :param broken_url:
-        :return:
+        :param broken_url: 
+        :return: the newly constructed url (after adding the netloc).
         """
-
+        # Get the domain using urlparse.
         obj = urlparse(origin_url)
         domain = obj.netloc
 
@@ -40,6 +56,7 @@ class TextProcessor:
             return ""
         else:
             return origin_url + broken_url[1:]
+
 
     def is_valid_url(self, origin_url, url):
         """
@@ -49,6 +66,7 @@ class TextProcessor:
         :return: The url if it is valid, or None if invalid
         """
 
+        # The regex for validating url.
         regex = re.compile(
             r'^https?://'  # http:// or https://
             r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+[A-Z]{2,6}\.?|'  # domain...
@@ -57,15 +75,17 @@ class TextProcessor:
             r'(?::\d+)?'  # optional port
             r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
+        # If passed the regex test, return.
         if (url is not None) and (regex.search(url) is not None):
             return url
         else:
-            # try adding netloc
+            # If didn't pass the regex, first try adding netloc:
             new_url = self.add_domain(origin_url, url)
-
+            # return if passed the regex after added the netloc.
             if (new_url is not None) and (regex.search(new_url) is not None):
                 return new_url
 
+        # Handles the case that missing http or https in front of the url.
         if new_url == "":
             new_url = "http://" + url
             if (new_url is not None) and (regex.search(new_url) is not None):

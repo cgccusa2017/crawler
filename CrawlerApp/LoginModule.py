@@ -1,5 +1,6 @@
 
 
+# TODO: this class will handles crawler settings for the url that requires login information.
 class LoginModule():
 
 

@@ -1,23 +1,36 @@
-
 import requests
 from CrawlerApp import LoginModule
 from CrawlerApp.Settings import CrawlerSettings
 from CrawlerApp import TextProcessor
 
+
+
 class Crawler:
+	"""
+	This class handles crawling website.
+	"""
 	def __init__(self, session=None):
-		if not session:
+
+		# Session for accessing database
+		if not session: 
 			self.session = requests.Session()
 		else:
 			self.session = session
 
+		# Text processor
 		self.tp = TextProcessor.TextProcessor()
 
 	def __del__(self):
+		"""
+        Close the db session when done.
+        """
 		self.session.close()
 
 
 	def default_crawler_setter(self, crawler_settings):
+		"""
+		This function sets the header of the session, or other crawler settings if needed.
+		"""
 		self.session.headers = CrawlerSettings.get_default_headers()
 		
 
@@ -41,35 +54,36 @@ class Crawler:
 		:return text: all text inside the url
 		"""
 
-		# if empty url string
+		# If empty url string, return.
 		if not target_url:
 			return target_url, -1, None
 
-		# check if the original url is valid
+		# Check if the original url is valid.
 		target_url = self.tp.is_valid_url("", target_url)
 		if target_url is None:
 			return target_url, -1, None
 
-		# add function to get cookies (LoginModule, github_login), and set session cookies
+		# Add function to get cookies (LoginModule, github_login), and set session cookies.
 		if crawler_settings and crawler_setter:
 			self.session = crawler_setter(self.session, crawler_settings)
 		else:
 			self.default_crawler_setter(crawler_settings)
 			
-
+		# If the url needs login information.
 		if need_login:
 			# return the cookies of specific website
 			cookies = LoginModule.get_cookies(target_url, crawler_settings)
 			self.session.cookies = cookies
 
-		# open the url, may have many exceptions
+		# Open the url, return None if status_code != 200
 		response = self.session.get(target_url, timeout=max_timeout)
 		status_code = response.status_code
 
+		# Update the url if redirected to other url.
 		if response.history and response.history[0].status_code in CrawlerSettings.get_redirect_code():
 			target_url = response.url
-			#print(target_url)
-
+			
+		# Only return the url, status code and text if successfully to open the url.
 		if status_code == requests.codes.ok:
 			return target_url, status_code, response.text
 

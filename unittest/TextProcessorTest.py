@@ -10,6 +10,9 @@ import unittest
 
 
 class TextProcessorTest(unittest.TestCase):
+    """
+    This is the unit test for Text Processor.
+    """
 
     def __init__(self):
         self.tp = TextProcessor.TextProcessor()
