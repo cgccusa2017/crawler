@@ -19,18 +19,24 @@ class CrawlerManagerTest(unittest.TestCase):
         self.manager = CrawlerManager.CrawlerManager()
         self.worker = CrawlerWorker.Crawler()
 
-    # def test_manager(self, target_url):
-    #     return self.crawler.crawl(target_url)
-
     def test_get_url(self):
+        """
+        This function tests the get_url() function in CrawlerManager.
+        """
         return self.manager.get_url()
 
     def test_check_domain(self, origin_url, new_url):
+        """
+        This function tests the check_domain() function in CrawlerManager.
+        """
         return self.manager.check_domain(origin_url, new_url)
 
 
     def test_check_update_task_table(self, origin_url):
-        #diff = -1
+        """
+        This function tests the update_url_task_table() function in CrawlerManager.
+        """
+        diff = -1
         with db.session_scope() as session:
             try:
                 old_count = session.query(db.URLTask).count()
@@ -45,12 +51,21 @@ class CrawlerManagerTest(unittest.TestCase):
             except SQLAlchemyError as e:
                 print(e)
                 return -1
+
+        # return the difference between count before and after updating the database.
         return diff
 
     def test_get_url_id(self, url):
+        """
+        This function tests the get_url_id() function in CrawlerManager.
+        """
         return self.manager.get_url_id(url)
 
+
     def test_check_update_text_table(self, origin_url):
+        """
+        This function tests the update_url_text_table() function in CrawlerManager.
+        """
         diff = -1
         with db.session_scope() as session:
             try:
@@ -68,7 +83,7 @@ class CrawlerManagerTest(unittest.TestCase):
             except SQLAlchemyError as e:
                 print(e)
                 return -1
-
+        # return the difference between count before and after updating the database.
         return diff
 
 
@@ -85,15 +100,17 @@ class CrawlerManagerTest(unittest.TestCase):
 
 
 if __name__ == "__main__":
+
+    # initial set up
     cmt = CrawlerManagerTest()
     origin_url = "https://www.python.org/"
     origin_url = "https://tuebui.com/joining-data-sets-with-hadoop-streaming-mapreduce-and-python/"
 
 
-    cmt.get_text(origin_url)
+    # cmt.get_text(origin_url)
 
-"""
     print("Testing CrawlerManager...")
+
     print("Testing Method: get_url()")
     assert len(cmt.test_get_url()) == 2
     assert isinstance(cmt.test_get_url()[0], str)
@@ -116,6 +133,7 @@ if __name__ == "__main__":
 
     print("Testing Method: test_check_update_text_table(self, origin_url)")
     assert cmt.test_check_update_text_table(origin_url) >= 0
+    
     print("Passed All Test cases.")
-"""
+
 

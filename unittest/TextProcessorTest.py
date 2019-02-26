@@ -1,6 +1,3 @@
-
-
-
 import sys
 from os.path import dirname
 sys.path.append(dirname(sys.path[0]))
@@ -19,17 +16,21 @@ class TextProcessorTest(unittest.TestCase):
 
 
     def test_add_domain(self, origin_url, broken_url):
+        """
+        This function tests the add_domain() function in Text Processor class.
+        """
         return self.tp.add_domain(origin_url, broken_url)
 
-
-    def test_is_valid_url(self, origin_url, url):
-        pass
 
 
 
 if __name__ == "__main__":
+    # initial set up.
     tpt = TextProcessorTest()
+
     print("Testing TextProcessor...")
+
     assert tpt.test_add_domain("", "") == ""
     assert tpt.test_add_domain("http://github.com", "") == "http://github.com"
+
     print("Passed All Test cases.")
