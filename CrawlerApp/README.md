@@ -12,6 +12,9 @@
 ```python CrawlerManager.py```
 
 
+#### Example:
+```"taxfoundation.py"``` in the **unittest** folder provides a simple example of using this Crawler Application. 
+
 
 
 ## TODO: 
