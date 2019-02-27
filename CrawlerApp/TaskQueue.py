@@ -2,6 +2,9 @@
 
 
 class TaskQueue:
+    """
+    This class is used to arrange crawling task queue.
+    """
 
 
     def __init__(self):

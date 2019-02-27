@@ -101,3 +101,7 @@ class TextProcessor:
     # TODO: handle keywords here, calculate the relevance of a url's content(given the keyword)
     def check_relevance(self, url_content, keyword):
         return 0
+
+
+    def calculate_priority(self, url_content):
+        pass

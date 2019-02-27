@@ -353,6 +353,8 @@ if __name__ == "__main__":
     print(url, "\t", url_id)
 
     #url, code, url_content = crawler.crawl(url)
+
+
     """
     #  cm.start_crawl(crawler, origin_url, url_id)
     distributed_Queue(cm.start_crawl(crawler, origin_url, url_id))

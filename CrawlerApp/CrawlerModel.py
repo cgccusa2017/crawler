@@ -120,7 +120,7 @@ class URLText(Base):
     text_id = Column(Integer, primary_key=True, autoincrement=True)
     url_id = Column(Integer, ForeignKey('URLTask.url_id'), nullable=False)
     timestamp = Column(Integer)
-    # TODO: store filepath instead of raw text
+    # TODO: store file path instead of raw text
     text = Column(Text, nullable=False)
 
     def __str__(self, ):
