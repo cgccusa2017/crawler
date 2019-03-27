@@ -12,6 +12,13 @@ class TextProcessor:
         # set relevance score = 0 by default
         self.threshold = 0
 
+    def check_same_domain(self, origin_url, new_url):
+        old_domain = urlparse(origin_url).netloc
+        new_domain = urlparse(new_url).netloc
+        if old_domain == new_domain:
+            return True
+        return False
+
     def separate_url_text(self, origin_url, url_content, keyword=None):
         """
         This function will separate url and text from the original url content.
@@ -55,7 +62,7 @@ class TextProcessor:
         if domain == "":
             return ""
         else:
-            return origin_url + broken_url[1:]
+            return "http://"+ domain + broken_url
 
 
     def is_valid_url(self, origin_url, url):
@@ -82,6 +89,7 @@ class TextProcessor:
             # If didn't pass the regex, first try adding netloc:
             new_url = self.add_domain(origin_url, url)
             # return if passed the regex after added the netloc.
+
             if (new_url is not None) and (regex.search(new_url) is not None):
                 return new_url
 
