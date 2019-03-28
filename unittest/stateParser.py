@@ -15,7 +15,7 @@ import os
 
 
 
-def crawl_state_link(root, quota=1000):
+def crawl_state_link(root, quota=100):
 
     tp = TextProcessor.TextProcessor()
     crawler = CrawlerWorker.Crawler()
@@ -27,8 +27,11 @@ def crawl_state_link(root, quota=1000):
         visited.add(curr_url)
 
         crawler_response = crawler.crawl(curr_url)
+
+        sleep(1)
+
         if crawler_response[1] != 200:
-            return
+            continue
 
         response = crawler_response[2]
         soup = BeautifulSoup(response, 'html.parser')
@@ -37,7 +40,9 @@ def crawl_state_link(root, quota=1000):
             script.extract()    # remove java script and style in html
 
         for a in soup.find_all('a'):
+
             if a.has_attr('href'):
+                #print(a)
                 new_url = tp.is_valid_url(curr_url, a['href'])
                 if new_url and tp.check_same_domain(curr_url, new_url):
                     if new_url[-1] == '/':
@@ -46,8 +51,16 @@ def crawl_state_link(root, quota=1000):
                     if new_url not in visited and not new_url.endswith('.pdf'):
                         url_list.append(new_url)
                         visited.add(new_url)
+
                         if len(visited) == quota:
+                            #print(visited)
                             return list(visited)
+
+            else:
+                #print(a)
+                pass
+
+    #print(list(visited))
     return list(visited)
 
 
@@ -160,13 +173,29 @@ if __name__ == "__main__":
     # for l in ny_links:
     #     print(l)
 
-    for key, value in state_link.items():
+    update_link = {'southdakota':'http://www.sdreadytowork.com/',
+                   'oklahoma':'https://www.greateroklahomacity.com/industries/key-industries/',
+                   'alaska':'https://www.commerce.alaska.gov/web/'
+                   }
+
+
+    # Few links: oklahoma, alaska, south dakota
+
+    for key, value in update_link.items():
         link_path = 'crawl_states_data/' + key + '_links.txt'
-        link_file = open(link_path, 'a')
+
+        link_file = open(link_path, 'w+')
+        # print(value)
         url_list = crawl_state_link(value)
+        print(key)
+        # print(url_list)
+
         if url_list:
             for l in url_list:
+                #print(l)
                 link_file.write(l)
+                link_file.write('\n')
 
+        link_file.close()
 
 

@@ -4,7 +4,6 @@ from CrawlerApp.Settings import CrawlerSettings
 from CrawlerApp import TextProcessor
 
 
-
 class Crawler:
 	"""
 	This class handles crawling website.
@@ -76,7 +75,13 @@ class Crawler:
 			self.session.cookies = cookies
 
 		# Open the url, return None if status_code != 200
-		response = self.session.get(target_url, timeout=max_timeout)
+		try:
+			response = self.session.get(target_url, timeout=max_timeout)
+		except requests.exceptions.SSLError:
+			response = self.session.get(target_url, timeout=max_timeout, verify=False)
+
+
+		# warnings.simplefilter('ignore',InsecureRequestWarning)
 		status_code = response.status_code
 
 		# Update the url if redirected to other url.
