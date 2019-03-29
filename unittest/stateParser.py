@@ -4,15 +4,10 @@ sys.path.append(dirname(sys.path[0]))
 __package__='crawler'
 from CrawlerApp import CrawlerWorker
 from CrawlerApp import TextProcessor
-from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
-import pandas as pd
-
 from time import sleep
 import csv
-import os
-
 
 
 def crawl_state_link(root, quota=100):
@@ -53,11 +48,9 @@ def crawl_state_link(root, quota=100):
                         visited.add(new_url)
 
                         if len(visited) == quota:
-                            #print(visited)
                             return list(visited)
 
             else:
-                #print(a)
                 pass
 
     #print(list(visited))
@@ -100,7 +93,7 @@ def crawl_individual_state(url):
 def save_text(state_link):
     crawler = CrawlerWorker.Crawler()
 
-    for key, value in links.items():
+    for key, value in state_link.items():
         state_name = key.replace(" ", "")
         state_link = value
         state_file_name = state_name+'_text.txt'

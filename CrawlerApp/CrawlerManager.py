@@ -271,7 +271,7 @@ class CrawlerManager:
                 else:
                     row.text = text
 
-                session.commit()
+                # session.commit()
                 # print("Success: Updating url text table")
 
             # handle database exceptions
