@@ -55,11 +55,13 @@ class Crawler:
 
 		# If empty url string, return.
 		if not target_url:
+			print("Empty url string")
 			return target_url, -1, None
 
 		# Check if the original url is valid.
 		target_url = self.tp.is_valid_url("", target_url)
 		if target_url is None:
+			print("url is not valid")
 			return target_url, -1, None
 
 		# Add function to get cookies (LoginModule, github_login), and set session cookies.
@@ -79,6 +81,8 @@ class Crawler:
 			response = self.session.get(target_url, timeout=max_timeout)
 		except requests.exceptions.SSLError:
 			response = self.session.get(target_url, timeout=max_timeout, verify=False)
+		except requests.exceptions.ConnectionError:
+			return target_url, -1, None
 
 
 		# warnings.simplefilter('ignore',InsecureRequestWarning)
