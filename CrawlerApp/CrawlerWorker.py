@@ -55,13 +55,11 @@ class Crawler:
 
 		# If empty url string, return.
 		if not target_url:
-			print("Empty url string")
 			return target_url, -1, None
 
 		# Check if the original url is valid.
 		target_url = self.tp.is_valid_url("", target_url)
 		if target_url is None:
-			print("url is not valid")
 			return target_url, -1, None
 
 		# Add function to get cookies (LoginModule, github_login), and set session cookies.
@@ -83,17 +81,35 @@ class Crawler:
 			response = self.session.get(target_url, timeout=max_timeout, verify=False)
 		except requests.exceptions.ConnectionError:
 			return target_url, -1, None
+		# finally:
+		# 	status_code = response.status_code
+		# 	if status_code == requests.codes.ok:
+		# 		return target_url, status_code, response.text
 
-
-		# warnings.simplefilter('ignore',InsecureRequestWarning)
 		status_code = response.status_code
-
 		# Update the url if redirected to other url.
 		if response.history and response.history[0].status_code in CrawlerSettings.get_redirect_code():
+
 			target_url = response.url
-			
+			#print("redirected url: {}".format(target_url))
+			# Open the url, return None if status_code != 200
+			try:
+				response = self.session.get(target_url, timeout=max_timeout)
+				status_code = response.status_code
+			except requests.exceptions.SSLError:
+				response = self.session.get(target_url, timeout=max_timeout, verify=False)
+				status_code = response.status_code
+			except requests.exceptions.ConnectionError:
+				return target_url, -1, None
+			else:
+				#print("Unknown errors: {}".format(response.status_code))
+
+				#response.raise_for_status()
+				pass
+
 		# Only return the url, status code and text if successfully to open the url.
 		if status_code == requests.codes.ok:
+			#print(response.text)
 			return target_url, status_code, response.text
 
 		return target_url, -1, None
